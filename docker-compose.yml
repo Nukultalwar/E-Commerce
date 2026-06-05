@@ -1,0 +1,50 @@
+version: '3.9'
+services:
+  mongodb:
+    image: mongo:7.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: smartdeal
+      MONGO_INITDB_ROOT_PASSWORD: smartpass
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - '27017:27017'
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - PORT=4000
+      - MONGO_URI=mongodb://smartdeal:smartpass@mongodb:27017/smartdeal?authSource=admin
+      - JWT_SECRET=changeme_super_secure_secret
+      - REDIS_URL=redis://redis:6379
+      - EMAIL_FROM=no-reply@smartdeal.ai
+      - CLIENT_URL=http://localhost:3000
+    ports:
+      - '4000:4000'
+    depends_on:
+      - mongodb
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=http://localhost:4000/api
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:
+    name: smartdeal-mongo
