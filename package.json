@@ -1,0 +1,16 @@
+{
+  "name": "smartdeal-ai",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "docker compose up --build",
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "lint": "npm --workspace frontend run lint && npm --workspace backend run lint",
+    "clean": "rm -rf node_modules frontend/node_modules backend/node_modules"
+  }
+}
