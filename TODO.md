@@ -1,37 +1,27 @@
-# SmartDeal AI - Implementation TODO
+# TODO — SmartDeal AI upgrade roadmap
 
-## Milestone 1 — Platform foundations (scaffolding-first)
-- [x] Create/extend API contracts for future “ecosystem” features (recommendations, bundles, deals, reviews, security alerts)
-- [ ] Add backend route skeletons + response DTOs for:
-  - [ ] AI assistant (structured + streaming-ready contract)
-  - [ ] Intent-based search endpoints
-  - [ ] Price history endpoint (granularity supported)
-  - [ ] Deal analyzer endpoint (decision + reasons + confidence)
-  - [ ] Auth/security endpoints for OTP verification, 2FA stubs, session management
-- [ ] Add frontend UI scaffolding/components (skeleton loading, micro-interactions, animated sections)
-  - [ ] Wire assistant/search/product screens to backend contracts with mock fallback
+## Step 0 — Audit complete
+- [x] Repo inventory: frontend (Next+Tailwind), backend (Express+Mongo+Redis), existing routes and contracts.
+- [x] Identified gaps: mocks-only AI/UI wiring, regex search bottleneck, security not yet enterprise.
 
-## Milestone 2 — Vertical slice MVP (demoable end-to-end)
-- [ ] Auth flow: email verify + OTP verify + login + active sessions (including suspicious flag placeholder)
-- [ ] AI assistant: wire to backend `/api/ai/assistant` contract and add polished UX
-- [ ] Search: upgrade UI to call intent search endpoint and display refinement chips
-- [ ] Product page: wire deal analyzer + price history graph + variant-driven updates
+## Step 1 — Vertical slice: wire UI to existing backend endpoints
+- [x] Wire **AI Assistant** frontend shell to `POST /api/ai/assistant` (keeps mock fallback on failure).
+- [ ] Wire **Search** shell to `GET /api/products/search?q=...` and render real results (keep mock fallback).
+- [ ] Wire **Deal Intelligence** section on product page to `GET /api/products/:slug/deal-analyzer` (keep mock fallback).
 
-## Milestone 3 — Ecosystem expansion (iterate)
-- [ ] Reviews (verified purchaser gating + fake/spam detection stub + AI review summary stub)
-- [ ] Recommendations (compatibility graph contract)
-- [ ] Smart bundle engine contract
-- [ ] Cart AI savings contract
-- [ ] Seller trust score transparency views
-- [ ] Admin analytics dashboard endpoints (mock forecasting)
+## Step 2 — Contracts-first hardening (additive)
+- [ ] Add Zod validation to new “v2” endpoints matching `backend/src/routes/contracts.ts` schemas.
+- [ ] Add response DTOs (type-safe) between frontend and backend.
 
-## Milestone 4 — Future-ready premium features scaffolding
-- [ ] AR/virtual try-on contract stubs
-- [ ] Sustainability/carbon tracking contract stubs
-- [ ] Digital product passport + authenticity verification contract stubs
-- [ ] Multilingual + accessibility + dark mode wiring
+## Step 3 — Performance baseline
+- [ ] Add indexes for Product fields used in search (`title`, `shortDescription`, `category`, `slug`).
+- [ ] Add basic Redis caching around deal analyzer and search.
 
-## Notes
-- Backend currently uses Express + MongoDB; frontend uses Next.js App Router + Tailwind.
-- Repo already has partial mock UI + mock AI responses; goal is to replace mocks with real contracts incrementally.
+## Step 4 — Security enterprise scaffolding (additive)
+- [ ] Implement OTP/2FA endpoints behind feature flags.
+- [ ] Add audit logging collection + middleware for auth/security events.
+
+## Step 5 — Subscription + AI tiering (scaffold)
+- [ ] Add plan read endpoint and gating logic in frontend (Free/Pro/Business).
+- [ ] Add placeholder subscription webhooks endpoints (won’t break existing auth).
 
