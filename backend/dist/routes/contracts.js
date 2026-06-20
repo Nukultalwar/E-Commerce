@@ -25,7 +25,8 @@ exports.AiAssistantRecommendationSchema = zod_1.z.object({
 });
 exports.AiAssistantResponseSchema = zod_1.z.object({
     prompt: zod_1.z.string(),
-    recommendations: zod_1.z.array(exports.AiAssistantRecommendationSchema),
+    // matches current backend + frontend payload shape
+    recommendation: zod_1.z.string(),
     insights: zod_1.z.array(zod_1.z.string()),
     followUp: zod_1.z.string().optional(),
     // streaming-ready (if/when we add SSE)

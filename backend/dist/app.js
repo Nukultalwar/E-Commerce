@@ -14,9 +14,29 @@ const app = (0, express_1.default)();
 app.use((0, cookie_parser_1.default)());
 app.use(body_parser_1.default.json({ limit: '20mb' }));
 app.use(body_parser_1.default.urlencoded({ extended: true }));
-app.use(security_1.securityMiddleware);
+// In local development we allow calls without CSRF token.
+// CSRF still applies in production unless explicitly disabled.
+if (process.env.NODE_ENV === 'production') {
+    app.use(security_1.securityMiddleware);
+}
+else {
+    // keep helmet + cors + rate-limit without csurf
+    const [helmetMw, corsMw, rateLimitMw] = security_1.securityMiddleware;
+    app.use(helmetMw);
+    app.use(corsMw);
+    app.use(rateLimitMw);
+}
 app.get('/api/health', (_req, res) => {
     res.json({ status: 'healthy', service: 'SmartDeal AI backend' });
+});
+// Prevent Chrome DevTools from repeatedly requesting a missing well-known config.
+// This is primarily to avoid CSP console noise during local development.
+app.get('/.well-known/appspecific/com.chrome.devtools.json', (_req, res) => {
+    res.json({});
+});
+// Avoid noisy 404 for browser default favicon requests.
+app.get('/favicon.ico', (_req, res) => {
+    res.status(204).end();
 });
 app.use('/api/auth', auth_1.default);
 app.use('/api/products', products_1.default);

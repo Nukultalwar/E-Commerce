@@ -41,22 +41,42 @@ router.post('/compare', async (req, res) => {
     return res.json({ products });
 });
 router.get('/:slug/deal-analyzer', async (req, res) => {
-    const product = await Product_1.default.findOne({ slug: req.params.slug }).lean();
+    const slug = req.params.slug;
+    const product = await Product_1.default.findOne({ slug }).lean();
     if (!product) {
         return res.status(404).json({ error: 'Product not found' });
     }
     const seller = await Seller_1.default.findOne({ name: product.seller }).lean();
-    const averagePrice = product.priceHistory.reduce((sum, point) => sum + point.price, 0) / Math.max(product.priceHistory.length, 1);
-    const delta = product.currentPrice - averagePrice;
-    const recommendation = delta <= 0 ? 'Buy now' : 'Consider waiting for a better drop';
-    const strength = delta <= 0 ? 'strong' : 'moderate';
+    const history = Array.isArray(product.priceHistory) ? product.priceHistory : [];
+    const averagePriceRaw = history.reduce((sum, point) => sum + Number(point.price ?? 0), 0) / Math.max(history.length, 1);
+    const averagePrice = Number(averagePriceRaw.toFixed(2));
+    const delta = Number(product.currentPrice) - averagePrice;
+    // Normalize into contract-friendly enums.
+    const decision = delta <= 0 ? 'buy_now' : 'wait';
+    // confidence in [0..1]
+    const pct = averagePrice > 0 ? delta / averagePrice : 0;
+    const confidence = Math.max(0, Math.min(1, decision === 'buy_now' ? 0.75 + Math.abs(Math.min(0, pct)) : 0.35));
+    const reasons = [];
+    if (delta <= 0) {
+        reasons.push('Current price is at or below the historical average for this product/category.');
+    }
+    else {
+        reasons.push('Current price is above the historical average; waiting may yield a better drop.');
+    }
+    reasons.push('Seller trust is based on delivery/support reliability.');
+    const suggestedAlternativeSlugs = [];
     return res.json({
-        currentPrice: product.currentPrice,
-        averagePrice: Number(averagePrice.toFixed(2)),
+        slug,
+        currentPrice: Number(product.currentPrice),
+        averageHistoricalPrice: averagePrice,
         sellerTrust: seller?.trustScore ?? 82,
-        decision: recommendation,
-        confidence: strength,
-        alert: delta > 0 ? 'Price is slightly above average. Watch trend for the next repricing cycle.' : 'Deal looks strong based on history and seller reliability.',
+        decision,
+        confidence,
+        reasons,
+        nextStep: decision === 'buy_now'
+            ? 'Purchase now to lock the deal, and consider adding a matched warranty.'
+            : 'Monitor price trends for the next repricing cycle or consider alternatives.',
+        suggestedAlternativeSlugs,
     });
 });
 exports.default = router;

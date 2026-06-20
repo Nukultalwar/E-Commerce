@@ -27,7 +27,8 @@ export const AiAssistantRecommendationSchema = z.object({
 
 export const AiAssistantResponseSchema = z.object({
   prompt: z.string(),
-  recommendations: z.array(AiAssistantRecommendationSchema),
+  // matches current backend + frontend payload shape
+  recommendation: z.string(),
   insights: z.array(z.string()),
   followUp: z.string().optional(),
   // streaming-ready (if/when we add SSE)

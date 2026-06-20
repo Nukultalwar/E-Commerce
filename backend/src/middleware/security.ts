@@ -10,7 +10,7 @@ const cspDirectives = {
   scriptSrc: ["'self'", "'unsafe-inline'", 'https:'],
   styleSrc: ["'self'", 'https:' ],
   imgSrc: ["'self'", 'data:', 'https:'],
-  connectSrc: ["'self'", 'ws:', 'wss:', 'https:'],
+  connectSrc: ["'self'", 'ws:', 'wss:', 'https:', 'http:'],
   fontSrc: ["'self'", 'https:', 'data:'],
   objectSrc: ["'none'"],
   frameAncestors: ["'none'"],
