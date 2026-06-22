@@ -4,13 +4,69 @@ import { useState } from 'react';
 import { Search, Mic, ImagePlus } from 'lucide-react';
 import { searchRecommendations } from '@/lib/mockData';
 
+type SearchRecommendation = (typeof searchRecommendations)[number];
+
+type BackendSearchResult = {
+  slug?: string;
+  title?: string;
+  category?: string;
+  currentPrice?: number;
+  shortDescription?: string;
+};
+
 export default function SearchPageShell() {
   const [query, setQuery] = useState('best gaming laptop under ₹70,000 for coding and video editing');
-  const [results, setResults] = useState(searchRecommendations);
+  const [results, setResults] = useState<SearchRecommendation[]>(searchRecommendations);
   const [voiceActive, setVoiceActive] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = () => {
-    setResults(searchRecommendations.filter((item) => item.title.toLowerCase().includes(query.toLowerCase()) || item.note.toLowerCase().includes(query.toLowerCase())));
+  const handleSearch = async () => {
+    setLoading(true);
+
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000/api';
+      const url = new URL(`${apiBase}/products/search`);
+      url.searchParams.set('q', query);
+
+      const res = await fetch(url.toString(), { method: 'GET' });
+      if (!res.ok) throw new Error(`Search failed: ${res.status}`);
+
+      const data = await res.json();
+      const backendResults = Array.isArray(data?.results) ? (data.results as BackendSearchResult[]) : [];
+
+      const mapped: SearchRecommendation[] = backendResults
+        .filter((r) => typeof r.title === 'string')
+        .slice(0, 12)
+        .map((r) => ({
+          title: r.title as string,
+          note: (r.shortDescription as string) ?? 'Recommended product based on your query.',
+          value: typeof r.currentPrice === 'number' ? `₹${r.currentPrice.toLocaleString()}` : '—',
+          type: (r.category as string) ?? 'Product',
+        }));
+
+      // If backend returns empty/invalid, keep mock fallback.
+      if (mapped.length > 0) setResults(mapped);
+      else {
+        setResults(
+          searchRecommendations.filter(
+            (item) =>
+              item.title.toLowerCase().includes(query.toLowerCase()) ||
+              item.note.toLowerCase().includes(query.toLowerCase())
+          )
+        );
+      }
+    } catch {
+      // mock fallback to avoid breaking existing UX
+      setResults(
+        searchRecommendations.filter(
+          (item) =>
+            item.title.toLowerCase().includes(query.toLowerCase()) ||
+            item.note.toLowerCase().includes(query.toLowerCase())
+        )
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,20 +96,30 @@ export default function SearchPageShell() {
                 placeholder="Search products, styles, budgets, or compatibility"
               />
             </div>
-            <button onClick={() => setVoiceActive(!voiceActive)} className="inline-flex items-center gap-2 rounded-3xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">
+            <button
+              onClick={() => setVoiceActive(!voiceActive)}
+              className="inline-flex items-center gap-2 rounded-3xl bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+            >
               <Mic className="h-4 w-4" />
               {voiceActive ? 'Listening...' : 'Use voice'}
             </button>
-            <button onClick={handleSearch} className="inline-flex items-center gap-2 rounded-3xl bg-slate-100/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-100/20">
+            <button
+              onClick={handleSearch}
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-3xl bg-slate-100/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-100/20 disabled:cursor-not-allowed disabled:opacity-60"
+            >
               <ImagePlus className="h-4 w-4" />
-              Run search
+              {loading ? 'Searching…' : 'Run search'}
             </button>
           </div>
         </div>
 
         <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {results.map((item) => (
-            <article key={item.title} className="rounded-3xl border border-slate-800 bg-slate-950/90 p-5 transition hover:-translate-y-1 hover:border-cyan-400">
+            <article
+              key={item.title}
+              className="rounded-3xl border border-slate-800 bg-slate-950/90 p-5 transition hover:-translate-y-1 hover:border-cyan-400"
+            >
               <p className="text-sm uppercase tracking-[0.3em] text-slate-400">{item.type}</p>
               <h2 className="mt-3 text-xl font-semibold text-white">{item.title}</h2>
               <p className="mt-3 text-slate-400">{item.note}</p>
@@ -65,3 +131,4 @@ export default function SearchPageShell() {
     </main>
   );
 }
+
