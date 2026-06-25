@@ -44,26 +44,15 @@ export default function SearchPageShell() {
           type: (r.category as string) ?? 'Product',
         }));
 
-      // If backend returns empty/invalid, keep mock fallback.
-      if (mapped.length > 0) setResults(mapped);
-      else {
-        setResults(
-          searchRecommendations.filter(
-            (item) =>
-              item.title.toLowerCase().includes(query.toLowerCase()) ||
-              item.note.toLowerCase().includes(query.toLowerCase())
-          )
-        );
+      if (mapped.length > 0) {
+        setResults(mapped);
+      } else {
+        // No results: keep empty state rather than swapping to mock data.
+        setResults([]);
       }
     } catch {
-      // mock fallback to avoid breaking existing UX
-      setResults(
-        searchRecommendations.filter(
-          (item) =>
-            item.title.toLowerCase().includes(query.toLowerCase()) ||
-            item.note.toLowerCase().includes(query.toLowerCase())
-        )
-      );
+      // No mock fallback: show empty list; UI already has skeleton/loading.
+      setResults([]);
     } finally {
       setLoading(false);
     }
