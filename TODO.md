@@ -1,27 +1,26 @@
-# TODO — SmartDeal AI upgrade roadmap
+# SmartDeal AI upgrade roadmap
 
 ## Step 0 — Audit complete
 - [x] Repo inventory: frontend (Next+Tailwind), backend (Express+Mongo+Redis), existing routes and contracts.
-- [x] Identified gaps: mocks-only AI/UI wiring, regex search bottleneck, security not yet enterprise.
+- [x] Identified gaps: mocks-only AI/UI wiring, deal analyzer response mismatch, security not yet enterprise.
 
-## Step 1 — Vertical slice: wire UI to existing backend endpoints
-- [x] Wire **AI Assistant** frontend shell to `POST /api/ai/assistant` (keeps mock fallback on failure).
-- [ ] Wire **Search** shell to `GET /api/products/search?q=...` and render real results (keep mock fallback).
-- [ ] Wire **Deal Intelligence** section on product page to `GET /api/products/:slug/deal-analyzer` (keep mock fallback).
+## Step 1 — Fix backend deal-analyzer contract bugs (vital)
+- [x] Normalize `GET /api/products/:slug/deal-analyzer` response to match `backend/src/routes/contracts.ts` (`decision`, `confidence`, `reasons`, `averageHistoricalPrice`, etc.).
 
-## Step 2 — Contracts-first hardening (additive)
-- [ ] Add Zod validation to new “v2” endpoints matching `backend/src/routes/contracts.ts` schemas.
-- [ ] Add response DTOs (type-safe) between frontend and backend.
+## Step 2 — Wire Search UI to backend (with mock fallback)
+- [x] Update `frontend/components/SearchPageShell.tsx` to call `GET /api/products/search?q=...`.
+- [x] Keep mock fallback on network/shape errors.
 
-## Step 3 — Performance baseline
-- [ ] Add indexes for Product fields used in search (`title`, `shortDescription`, `category`, `slug`).
-- [ ] Add basic Redis caching around deal analyzer and search.
+## Step 3 — Wire Product page deal analyzer (with mock fallback)
+- [x] Update `frontend/components/ProductDetailShell.tsx` to call `GET /api/products/:slug` and `GET /api/products/:slug/deal-analyzer`.
+- [x] Keep mock fallback on network/shape errors.
 
-## Step 4 — Security enterprise scaffolding (additive)
-- [ ] Implement OTP/2FA endpoints behind feature flags.
-- [ ] Add audit logging collection + middleware for auth/security events.
+## Step 4 — Performance & security hardening
+- [ ] Add indexes for Product search fields used by regex (`title`, `shortDescription`, `category`, `slug`).
+- [ ] Add basic Redis caching around search and deal analyzer.
+- [ ] Review CSRF requirements for POST endpoints in production.
 
-## Step 5 — Subscription + AI tiering (scaffold)
-- [ ] Add plan read endpoint and gating logic in frontend (Free/Pro/Business).
-- [ ] Add placeholder subscription webhooks endpoints (won’t break existing auth).
+## Step 5 — UI/UX integration
+- [ ] Add loading/error states for search and deal analyzer sections.
+- [ ] Ensure type-safe rendering to avoid runtime crashes.
 
