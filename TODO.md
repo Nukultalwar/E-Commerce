@@ -18,6 +18,7 @@
 ## Step 4 — Performance & security hardening
 - [ ] Add indexes for Product search fields used by regex (`title`, `shortDescription`, `category`, `slug`).
 - [ ] Add basic Redis caching around search and deal analyzer.
+
 - [ ] Review CSRF requirements for POST endpoints in production.
 
 ## Step 5 — UI/UX integration
