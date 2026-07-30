@@ -16,12 +16,12 @@
 - [x] Keep mock fallback on network/shape errors.
 
 ## Step 4 — Performance & security hardening
-- [ ] Add indexes for Product search fields used by regex (`title`, `shortDescription`, `category`, `slug`).
-- [ ] Add basic Redis caching around search and deal analyzer.
+- [x] Add indexes for Product search fields used by regex (`title`, `shortDescription`, `category`, `slug`).
+- [x] Add basic Redis caching around search and deal analyzer.
 
 - [ ] Review CSRF requirements for POST endpoints in production.
 
 ## Step 5 — UI/UX integration
-- [ ] Add loading/error states for search and deal analyzer sections.
-- [ ] Ensure type-safe rendering to avoid runtime crashes.
+- [x] Add loading/error states for search and deal analyzer sections.
+- [x] Ensure type-safe rendering to avoid runtime crashes.
 
