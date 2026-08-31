@@ -1,47 +1,21 @@
 {
-  "name": "smartdeal-ai-backend",
-  "version": "0.1.0",
+  "name": "smartdeal-ai",
   "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "dev": "nodemon --watch src --exec ts-node src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "lint": "eslint . --ext .ts"
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.3",
-    "express-rate-limit": "^6.8.0",
-    "express-validator": "^7.3.2",
-    "helmet": "^7.0.0",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^7.5.4",
-    "redis": "^5.12.1",
-    "uuid": "^14.0.1",
-    "zod": "^3.25.76"
+    "dev": "docker compose up --build",
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "lint": "npm --workspace frontend run lint && npm --workspace backend run lint",
+    "clean": "rm -rf node_modules frontend/node_modules backend/node_modules"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.2",
-    "@types/cookie-parser": "^1.4.3",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.19",
-    "@types/jsonwebtoken": "^9.0.3",
-    "@types/mongoose": "^5.11.97",
-    "@types/node": "^20.14.4",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
-    "eslint": "^8.57.1",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.32.0",
-    "mongodb-memory-server": "^11.2.0",
-    "nodemon": "^3.0.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.6.2"
-  },
-  "engines": {
-    "node": ">=18"
+    "eslint": "^8.57.1"
   }
 }
