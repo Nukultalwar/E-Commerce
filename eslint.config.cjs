@@ -1,11 +1,22 @@
 module.exports = [
-  { ignores: ['**/*.ts', '**/*.tsx', '.next/**', 'node_modules/**'] },
+  { ignores: ['node_modules/**'] },
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['**/*.ts'],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+      parser: require('@typescript-eslint/parser'),
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: __dirname,
+        ecmaVersion: 'latest',
+        sourceType: 'module'
+      }
     },
-    rules: {},
-  },
+    plugins: {
+      '@typescript-eslint': require('@typescript-eslint/eslint-plugin')
+    },
+    linterOptions: {
+      reportUnusedDisableDirectives: true
+    },
+    rules: {}
+  }
 ];
